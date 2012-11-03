@@ -59,10 +59,12 @@ namespace PRoConEvents
         Int32 kill_delay = 2000;
         // If 'yes' then players on procon 'Reserved' 
         // list have immunity from kick/kill
-        Dictionary<String, CPlayerInfo> currentPlayers = null;
-        enumBoolYesNo protect_reservedslot_players = enumBoolYesNo.Yes;
-        Int32 infractionsBeforeKick = 4;
-        Int32 infractionsBeforeTBan = 7;
+        private Dictionary<String, CPlayerInfo> currentPlayers = null;
+        private enumBoolYesNo protect_reservedslot_players = enumBoolYesNo.Yes;
+        private Int32 infractionsBeforeKick = 4;
+        private Int32 infractionsBeforeTBan = 7;
+        private double CQTicketCountModifier = 0.67;
+        private Int32 TicketsPerPlayer = 25;
         #endregion
 
         #region init
@@ -566,6 +568,9 @@ namespace PRoConEvents
                     case "Delay before kill":
                         this.kill_delay = Int32.Parse(strValue);
                         break;
+                    case "Tickets per Player":
+                        this.TicketsPerPlayer = Int32.Parse(strValue);
+                        break;    
                     case "Infractions Before Kick":
                         this.infractionsBeforeKick = Int32.Parse(strValue);
                         break;
@@ -595,6 +600,7 @@ namespace PRoConEvents
             {
                 List<CPluginVariable> lst = new List<CPluginVariable>();
                 lst.Add(new CPluginVariable("Delay before kill", typeof(int), this.kill_delay));
+                lst.Add(new CPluginVariable("Tickets per Player", typeof(int), this.TicketsPerPlayer));
                 lst.Add(new CPluginVariable("Infractions Before Kick", typeof(int), this.infractionsBeforeKick));
                 lst.Add(new CPluginVariable("Infractions Before 2 Hour TBan", typeof(int), this.infractionsBeforeTBan));
                 lst.Add(new CPluginVariable("Protect 'reserved slots' players from Kick or Kill", typeof(enumBoolYesNo), this.protect_reservedslot_players));
@@ -652,6 +658,7 @@ namespace PRoConEvents
         {
             this.currentWeapon = this.nextWeapon;
             String newServerName = "24/7 VoteWeapon - This Round: " + this.currentWeapon.description;
+            
             this.ExecuteCommand("procon.protected.send", "vars.serverName", newServerName);
             ConsoleWrite("Server Name set to: '" + newServerName + "'");
             this.setProconRulz();
@@ -674,6 +681,9 @@ namespace PRoConEvents
                 playerList.Add(player.SoldierName, player);
             }
             this.currentPlayers = playerList;
+            String newTicketCountString = ((int)(this.currentPlayers.Count * this.TicketsPerPlayer * this.CQTicketCountModifier)) + "";
+            this.ExecuteCommand("procon.protected.send", "vars.gameModeCounter", newTicketCountString);
+            ConsoleWrite("Next round ticket count updated: " + newTicketCountString);
         }
 
         //unused methods
