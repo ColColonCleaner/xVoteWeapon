@@ -42,11 +42,13 @@ namespace PRoConEvents
         */
         private bool fIsEnabled;
         private int fDebugLevel;
-        private String pluginVersion = "0.4";
+        private String pluginVersion = "1.0";
         //the list of available weapons
         private List<Weapon> weaponList;
         //the dictionary of available weapons (quick access by string key)
         private Dictionary<String, Weapon> weaponDictionary;
+        private ArrayList weaponArrayList;
+        private Weapon[] weaponArray;
         //the votes given to each weapon in the next round
         private Dictionary<String, Weapon> weaponVotes;
         //the current allowed weapon
@@ -61,10 +63,10 @@ namespace PRoConEvents
         // list have immunity from kick/kill
         private Dictionary<String, CPlayerInfo> currentPlayers = null;
         private enumBoolYesNo protect_reservedslot_players = enumBoolYesNo.Yes;
-        private Int32 infractionsBeforeKick = 4;
-        private Int32 infractionsBeforeTBan = 7;
+        private Int32 infractionsBeforeKick = 2;
+        private Int32 infractionsBeforeTBan = 4;
         private double CQTicketCountModifier = 0.67;
-        private Int32 TicketsPerPlayer = 25;
+        private Int32 TicketsPerPlayer = 10;
         #endregion
 
         #region init
@@ -100,7 +102,7 @@ namespace PRoConEvents
             tempWeapons.Add(new Weapon("MP5 Assault Rifle", "MP5", "HK53", "AssaultRifle"));
             tempWeapons.Add(new Weapon("Jackhammer/MK3A1 Shotgun", "MK3A1", "jackhammer", "Shotgun"));
             tempWeapons.Add(new Weapon("JNG90 Sniper Rifle", "JNG90", "JNG90", "SniperRifle"));
-            tempWeapons.Add(new Weapon("Knife", "KNIFE", "Weapons/Knife/Knife; Not Weapon Knife_RazorBlade", "Melee"));
+            tempWeapons.Add(new Weapon("Knife", "KNIFE", "Weapons/Knife/Knife; Not Weapon Knife_RazorBlade; Not Weapon Melee;", "Melee"));
             tempWeapons.Add(new Weapon("L96A1 Sniper Rifle", "L96", "L96", "SniperRifle"));
             tempWeapons.Add(new Weapon("LSAT Light Machine Gun", "LSAT", "LSAT", "LMG"));
             tempWeapons.Add(new Weapon("M416", "M416", "M416", "AssaultRifle"));
@@ -162,12 +164,22 @@ namespace PRoConEvents
             tempWeapons.Add(new Weapon("L86A2 Light Machine Gun", "L86A2", "Weapons/XP2_L86/L86", "LMG"));
             tempWeapons.Add(new Weapon("M5K Submachine Gun", "M5K", "Weapons/XP2_MP5K/MP5K", "SMG"));
             tempWeapons.Add(new Weapon("MTAR-21 Assault Rifle", "MTAR", "Weapons/XP2_MTAR/MTAR", "AssaultRifle"));
+            tempWeapons.Add(new Weapon("Tactical Crossbow", "XBOW", "CrossBow", "None"));
             this.weaponList = tempWeapons;
             //create the dictionary, used for when people vote for weapons
             this.weaponDictionary = new Dictionary<string, Weapon>();
+            this.weaponArrayList = new ArrayList();
             foreach (Weapon weapon in this.weaponList)
             {
                 this.weaponDictionary.Add(weapon.inGameName, weapon);
+                this.weaponArrayList.Add(weapon);
+            }
+            Int32 countW = this.weaponArrayList.Count;
+            Object[] tempW = this.weaponArrayList.ToArray();
+            this.weaponArray = new Weapon[countW];
+            for (Int32 i = 0; i < countW; i++)
+            {
+                this.weaponArray[i] = (Weapon)tempW[i];
             }
         }
         /**
@@ -263,13 +275,13 @@ namespace PRoConEvents
          * */
         private void setProconRulz()
         {
-            String melee =  this.currentWeapon.type.ToLower().Equals("melee")?(""):(" Not Weapon Weapons/Knife/Knife; Not Weapon Knife_RazorBlade;");
+            String melee = this.currentWeapon.type.ToLower().Equals("melee") ? ("") : (" Not Weapon Weapons/Knife/Knife; Not Weapon Knife_RazorBlade; Not Weapon Melee;");
             //String roundString = "On Round;Exec vars.serverName CQ 24/7 VoteWeapon - Current:" + this.currentWeapon.description + "; Say Current Weapon is the " + this.currentWeapon.description + ";Log server name set";
-            String joinString =  "On Join; PlayerSay Welcome to VoteWeapon. This round only use the " + this.currentWeapon.description;
+            String joinString = "On Join; PlayerSay Welcome to VoteWeapon. This round only use the " + this.currentWeapon.description;
             String spawnString = "On Spawn; PlayerSay Type 'killme' if you haven't equipped the " + this.currentWeapon.description;
-            String killString = "On Kill; Not Weapon " + this.currentWeapon.proconName + ";" + melee + " PlayerSay %p% Incorrect Weapon. This round only use the " + this.currentWeapon.description + ".;VictimSay %p% will be slain for using the wrong weapon on you.; Kill " + kill_delay;
+            String killString = "On Kill; Not Weapon " + this.currentWeapon.proconName + ";" + melee + " PlayerYell 5 %p% Incorrect Weapon. This round only use the " + this.currentWeapon.description + ".;VictimSay %p% will be slain for using the wrong weapon on you.; Kill " + kill_delay;
             String kickString = "On Kill; Not Weapon " + this.currentWeapon.proconName + ";" + melee + " PlayerCount " + infractionsBeforeKick + "; VictimSay %p% was KICKED for using the wrong weapon repeatedly.; Kick Rule Breaking, you will be temp banned for 2 hours if caught again.";
-            String tBanString = "On Kill; Not Weapon " + this.currentWeapon.proconName + ";" + melee + " PlayerCount " + infractionsBeforeTBan + "; VictimSay %p% was TEMP BANNED for using the wrong weapon repeatedly.; TempBan 200 Repeated Rule Breaking.";
+            String tBanString = "On Kill; Not Weapon " + this.currentWeapon.proconName + ";" + melee + " PlayerCount " + infractionsBeforeTBan + "; VictimSay %p% was TEMP BANNED for using the wrong weapon repeatedly.; TempBan 2400 Repeated Rule Breaking.";
             this.ExecuteCommand("procon.protected.plugins.setVariable", "ProconRulz", "Rules", joinString + "|" + spawnString + "|" + tBanString + "|" + kickString + "|" + killString);
             this.ExecuteCommand("procon.protected.plugins.setVariable", "ProconRulz", "Protect 'reserved slots' players from Kick or Kill", protect_reservedslot_players.ToString());
             this.ConsoleWrite("ProconRulz Rules Set. New allowed weapon is " + this.currentWeapon.description);
@@ -286,15 +298,15 @@ namespace PRoConEvents
          * */
         private void parseVoteChat(String speaker, String message)
         {
-            if (message.Equals("killme"))
+            if (message.ToLower().Equals("killme"))
             {
                 ExecuteCommand("procon.protected.send", "admin.killPlayer", speaker);
             }
-            else if (message.Equals("currentweapon"))
+            else if (message.ToLower().Equals("currentweapon"))
             {
                 this.playerSayMessage(speaker, "Current weapon is " + this.currentWeapon.description);
             }
-            else if (message.Equals("nextweapon"))
+            else if (message.ToLower().Equals("nextweapon"))
             {
                 ConsoleWrite("printing next weapon");
                 if (!this.votingStarted)
@@ -308,25 +320,30 @@ namespace PRoConEvents
                     this.playerSayMessage(speaker, "The next weapon based on votes will be the " + this.nextWeapon.description);
                 }
             }
-            else if (!this.votingStarted && message.Equals("voteweapon"))
+            else if (!this.votingStarted && message.ToLower().Equals("voteweapon"))
             {
                 this.startVotingSystem(speaker);
             }
-            else if (!this.votingStarted && message.StartsWith("vote"))
+            else if (!this.votingStarted && message.ToLower().StartsWith("vote "))
             {
                 this.startVotingSystem(speaker);
                 this.sendVote(speaker, message);
             }
-            else if (this.votingStarted && message.StartsWith("vote"))
+            else if (this.votingStarted && message.ToLower().StartsWith("vote "))
             {
                 this.sendVote(speaker, message);
             }
-            else if (speaker.ToLower().Contains("lazyengineer") && (message.ToLower().Contains(" kick ") || message.ToLower().Contains(" ban ") || message.ToLower().Contains(" banned ")))
+            else if (message.ToLower().Equals("weaponlist"))
             {
-                ExecuteCommand("procon.protected.send", "banList.add", "guid", this.currentPlayers[speaker].GUID,"seconds", "600" , "Bro....Bro....Don't. Temp Ban 10 minutes.");
-                ExecuteCommand("procon.protected.send", "banList.save");
-                ExecuteCommand("procon.protected.send", "banList.list");
-                this.yellMessage("My brother lazyengineer has been TBanned for 10 mins for talking about kicking or banning someone. Love, ColColonCleaner.", 5);
+                Random rand = new Random();
+                int cur;
+                Weapon randWeapon;
+                for (Int32 i = 0; i < 5; i++)
+                {
+                    cur = rand.Next(this.weaponArray.Length-1);
+                    randWeapon = this.weaponArray[cur];
+                    this.playerSayMessage(speaker, "'" + randWeapon.inGameName + "' | " + randWeapon.description);
+                }
             }
         }
 
@@ -491,7 +508,7 @@ namespace PRoConEvents
             </p>
             <h2>Current In-Game player Commands</h2>
             <p>
-                * 'voteweapon' : 		Starts the vote process if not started already.          <br/>
+                * 'voteweapon' :     	Starts the vote process if not started already.          <br/>
                 * 'vote WEAPONCODE' : 	Places your vote for the next weapon, where WEAPONCODE is a code from the list below, and WEAPONCODE is NOT case sensitive.          <br/>
 						                It will start the vote system if not started already, and will tell you if the 'next weapon' was altered by your vote.          <br/>
                 * 'currentweapon' : 	Tells you the current allowed weapon.          <br/>
@@ -543,6 +560,14 @@ namespace PRoConEvents
                     <b>Still to fix:</b>          <br/>
                         Notify the admin if proconrulz is not running.          <br/>
                         Find other bugs and fix them.          <br/>
+                <h4>0.4 (26-JAN-2013)</h4>
+	                <b>Weapon Codes:</b>          <br/>
+                        Added XBow         <br/>
+                    <b>Bug Fixes and Enhancements:</b>          <br/>
+                        Bugs found with weapon code for getting tags, fixed.          <br/>
+                        Surprise removed for TheLazyEngineer.      <br/>
+                    <b>Still to fix:</b>          <br/>
+                        Nothing, dev done unless other enhancements wanted.
             </blockquote>
             ";
         }
@@ -748,6 +773,3 @@ namespace PRoConEvents
 
     } // end xVoteWeapon
 } // end namespace PRoConEvents
-
-
-
