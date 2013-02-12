@@ -290,7 +290,7 @@ namespace PRoConEvents
             this.ExecuteCommand("procon.protected.plugins.setVariable", "ProconRulz", "Rules", joinString + "|" + spawnString + "|" + tBanString + "|" + kickString + "|" + killString);
             this.ExecuteCommand("procon.protected.plugins.setVariable", "ProconRulz", "Protect 'reserved slots' players from Kick or Kill", protect_reservedslot_players.ToString());
             this.ConsoleWrite("ProconRulz Rules Set. New allowed weapon is " + this.currentWeapon.description);
-            this.yellMessage("WARNING! VoteWeapon Plugin Restarted! New Weapon: " + this.currentWeapon.description, 5);
+            this.yellMessage("WARNING! VoteWeapon Plugin was Restarted! New Weapon: " + this.currentWeapon.description, 10);
         }
         /**
          * Prints the server rules
@@ -800,3 +800,6 @@ namespace PRoConEvents
 
     } // end xVoteWeapon
 } // end namespace PRoConEvents
+
+
+
