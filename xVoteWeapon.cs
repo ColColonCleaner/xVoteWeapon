@@ -42,7 +42,7 @@ namespace PRoConEvents
         */
         private bool fIsEnabled;
         private int fDebugLevel;
-        private String pluginVersion = "1.0";
+        private String pluginVersion = "1.1";
         //the list of available weapons
         private List<Weapon> weaponList;
         //the dictionary of available weapons (quick access by string key)
@@ -58,15 +58,17 @@ namespace PRoConEvents
         //whether players have started voting
         private bool votingStarted = false;
         //millisecond delay before killing people for infractions
-        Int32 kill_delay = 2000;
+        Int32 kill_delay = 100;
         // If 'yes' then players on procon 'Reserved' 
         // list have immunity from kick/kill
         private Dictionary<String, CPlayerInfo> currentPlayers = null;
         private enumBoolYesNo protect_reservedslot_players = enumBoolYesNo.Yes;
         private Int32 infractionsBeforeKick = 2;
-        private Int32 infractionsBeforeTBan = 4;
+        private Int32 infractionsBeforeTBan = 3;
         private double CQTicketCountModifier = 0.67;
         private Int32 TicketsPerPlayer = 10;
+        //string that will be used for server name template
+        private string serverNameTemplate = "=ADK= 24/7 Grand Bazaar - VoteWeapon | %W% |";
         #endregion
 
         #region init
@@ -165,6 +167,7 @@ namespace PRoConEvents
             tempWeapons.Add(new Weapon("M5K Submachine Gun", "M5K", "Weapons/XP2_MP5K/MP5K", "SMG"));
             tempWeapons.Add(new Weapon("MTAR-21 Assault Rifle", "MTAR", "Weapons/XP2_MTAR/MTAR", "AssaultRifle"));
             tempWeapons.Add(new Weapon("Tactical Crossbow", "XBOW", "CrossBow", "None"));
+            tempWeapons.Add(new Weapon("Robot Kill (MAV, EOD, MORTAR)", "ROBOT", "Death; Not Weapon Roadkill", "None"));
             this.weaponList = tempWeapons;
             //create the dictionary, used for when people vote for weapons
             this.weaponDictionary = new Dictionary<string, Weapon>();
@@ -275,16 +278,19 @@ namespace PRoConEvents
          * */
         private void setProconRulz()
         {
-            String melee = this.currentWeapon.type.ToLower().Equals("melee") ? ("") : (" Not Weapon Weapons/Knife/Knife; Not Weapon Knife_RazorBlade; Not Weapon Melee;");
-            //String roundString = "On Round;Exec vars.serverName CQ 24/7 VoteWeapon - Current:" + this.currentWeapon.description + "; Say Current Weapon is the " + this.currentWeapon.description + ";Log server name set";
+            Boolean isMelee = this.currentWeapon.type.ToLower().Equals("melee");
+            String melee = isMelee ? ("") : (" Not Weapon Weapons/Knife/Knife; Not Weapon Knife_RazorBlade; Not Weapon Melee;");
+            String eval = "On Kill; Not Weapon " + this.currentWeapon.proconName + ";" + melee;
             String joinString = "On Join; PlayerSay Welcome to VoteWeapon. This round only use the " + this.currentWeapon.description;
-            String spawnString = "On Spawn; PlayerSay Type 'killme' if you haven't equipped the " + this.currentWeapon.description;
-            String killString = "On Kill; Not Weapon " + this.currentWeapon.proconName + ";" + melee + " PlayerYell 5 %p% Incorrect Weapon. This round only use the " + this.currentWeapon.description + ".;VictimSay %p% will be slain for using the wrong weapon on you.; Kill " + kill_delay;
-            String kickString = "On Kill; Not Weapon " + this.currentWeapon.proconName + ";" + melee + " PlayerCount " + infractionsBeforeKick + "; VictimSay %p% was KICKED for using the wrong weapon repeatedly.; Kick Rule Breaking, you will be temp banned for 2 hours if caught again.";
-            String tBanString = "On Kill; Not Weapon " + this.currentWeapon.proconName + ";" + melee + " PlayerCount " + infractionsBeforeTBan + "; VictimSay %p% was TEMP BANNED for using the wrong weapon repeatedly.; TempBan 2400 Repeated Rule Breaking.";
+            String spawnString, killString, kickString, tBanString;
+            spawnString = "On Spawn; PlayerSay Type 'killme' if you haven't equipped the " + this.currentWeapon.description;
+            killString = eval + " PlayerYell %p% Incorrect Weapon. This round only use the " + this.currentWeapon.description + ".;VictimSay %p% will be slain for using the wrong weapon on you.; Kill " + kill_delay;
+            kickString = eval + " PlayerCount " + infractionsBeforeKick + "; VictimSay %p% was KICKED for using the wrong weapon repeatedly.; Kick Follow the rules. AutoAdmin will temp ban you if you continue.";
+            tBanString = eval + " PlayerCount " + infractionsBeforeTBan + "; VictimSay %p% was TEMP BANNED for using the wrong weapon repeatedly.; TempBan 2400 Repeated Rule Breaking.";
             this.ExecuteCommand("procon.protected.plugins.setVariable", "ProconRulz", "Rules", joinString + "|" + spawnString + "|" + tBanString + "|" + kickString + "|" + killString);
             this.ExecuteCommand("procon.protected.plugins.setVariable", "ProconRulz", "Protect 'reserved slots' players from Kick or Kill", protect_reservedslot_players.ToString());
             this.ConsoleWrite("ProconRulz Rules Set. New allowed weapon is " + this.currentWeapon.description);
+            this.yellMessage("WARNING! VoteWeapon Plugin Restarted! New Weapon: " + this.currentWeapon.description, 5);
         }
         /**
          * Prints the server rules
@@ -476,7 +482,7 @@ namespace PRoConEvents
             return @"
             <h1>xVoteWeapon</h1>
             <p>
-                !WARNING! this plugin automates ProconRulz, if you are currently using ProconRulz with any custom settings they will be erased when this plugin is enabled.
+                !WARNING! this plugin automates ProconRulz, ProconRulz must be running for this plugin to operate. If you are currently using ProconRulz with any custom rules they will be erased when this plugin is enabled.
                 This plugin allows for the 'VoteWeapon' gametype to be played.
             </p>
             <h2>Description</h2>
@@ -489,7 +495,7 @@ namespace PRoConEvents
                 * If nobody votes during a match, the weapon for the next match is chosen randomly from the list below.          <br/>
                 * If a player has not unlocked the current set weapon they must use the knife, no exceptions.          <br/>
                 * Players must not use underslung weapons. Thanks to DICE the auto-admin thinks they don't exist, they will get the players killed.          <br/>
-                * No cheating you rascally admins, even protected players will be slain by this plugin when infractions are caught.          <br/>
+                * When a Melee weapon is chosen (e.g. Defib, RepairTool), you cannot use the knife (Tags or Slash Kills).          <br/>
             </p>
             <h3>Suggestions</h3>
             <p>
@@ -498,9 +504,10 @@ namespace PRoConEvents
             <h2>Settings</h2>
             <p>
                 * 'Delay Before Kill' - The amount of time(ms) after an infraction is committed that the player is slain. This gives them time to read the yell banner. Default is 2000ms.
-                * 'Infractions Before Kick' - The number of infractions at which the player is kicked from the server. Default is 4.
-                * 'Infractions Before TBan' - The number of infractions at which the player is Temp Banned from the server for 2 Hours. Default is 7.
+                * 'Infractions Before Kick' - The number of infractions at which the player is kicked from the server. Default is 3.
+                * 'Infractions Before TBan' - The number of infractions at which the player is Temp Banned from the server for 2 Hours. Default is 4.
                 * 'Protect 'reserved slots' players from Kick or Kill' - Whether 'reserved slot' players will be protected from infraction punishment. Default is No.
+                * 'Server Name Template' - This variable is a template for the server name. Add %W% in the server name where you want the weapon description to be.
             </p>
             <h2>Future Settings</h2>
             <p>
@@ -508,12 +515,12 @@ namespace PRoConEvents
             </p>
             <h2>Current In-Game player Commands</h2>
             <p>
-                * 'voteweapon' :     	Starts the vote process if not started already.          <br/>
                 * 'vote WEAPONCODE' : 	Places your vote for the next weapon, where WEAPONCODE is a code from the list below, and WEAPONCODE is NOT case sensitive.          <br/>
 						                It will start the vote system if not started already, and will tell you if the 'next weapon' was altered by your vote.          <br/>
                 * 'currentweapon' : 	Tells you the current allowed weapon.          <br/>
                 * 'nextweapon' : 		Tells you the current decided weapon for the next round.          <br/>
                 * 'killme' : 			If you spawn with the wrong weapon on accident, type this command and you will be killed but your death count will not be incremented.          <br/>
+                * 'weaponlist' : 		Sends 5 random weapons with their codes to the player's chat list.          <br/>
             </p>
             <h2>Future In-Game player Commands</h2>
             <p>
@@ -543,7 +550,7 @@ namespace PRoConEvents
                     <b>Bug Fixes and Enhancements:</b>          <br/>
                         Weapon codes are no longer case sensitive.          <br/>
                         ASVal and RepairTool bugs fixed.          <br/>
-                        Implemented Kick after 4 infractions and TBan for 2 hours after 7 infractions.          <br/>
+                        Implemented Kick after 3 infractions and TBan for 2 hours after 4 infractions.          <br/>
                         Plugin now tells players what the current weapon is on join, before spawning.          <br/>
                         Now players may start a vote just by saying 'vote WEAPONCODE', no need to say 'voteweapon' first, although that can still be done.          <br/>
                     <b>Still to fix:</b>          <br/>
@@ -560,12 +567,20 @@ namespace PRoConEvents
                     <b>Still to fix:</b>          <br/>
                         Notify the admin if proconrulz is not running.          <br/>
                         Find other bugs and fix them.          <br/>
-                <h4>0.4 (26-JAN-2013)</h4>
+                <h4>1.0 (26-JAN-2013)</h4>
 	                <b>Weapon Codes:</b>          <br/>
                         Added XBow         <br/>
                     <b>Bug Fixes and Enhancements:</b>          <br/>
                         Bugs found with weapon code for getting tags, fixed.          <br/>
                         Surprise removed for TheLazyEngineer.      <br/>
+                    <b>Still to fix:</b>          <br/>
+                        Nothing, dev done unless other enhancements wanted.
+                <h4>1.1 (11-FEB-2013)</h4>
+	                <b>Weapon Codes:</b>          <br/>
+                        Added Robot         <br/>
+                    <b>Bug Fixes and Enhancements:</b>          <br/>
+                        Added customization to server name, now admin can change the server name template.          <br/>
+                        Added a warning for players if the plugin is restarted during a match, since the weapon is randomized on restart.          <br/>
                     <b>Still to fix:</b>          <br/>
                         Nothing, dev done unless other enhancements wanted.
             </blockquote>
@@ -590,6 +605,9 @@ namespace PRoConEvents
                 strValue = CPluginVariable.Decode(strValue);
                 switch (strVariable)
                 {
+                    case "Server Name Template":
+                        this.serverNameTemplate = strValue;
+                        break;
                     case "Delay before kill":
                         this.kill_delay = Int32.Parse(strValue);
                         break;
@@ -624,6 +642,7 @@ namespace PRoConEvents
             try
             {
                 List<CPluginVariable> lst = new List<CPluginVariable>();
+                lst.Add(new CPluginVariable("Server Name Template", typeof(string), this.serverNameTemplate));
                 lst.Add(new CPluginVariable("Delay before kill", typeof(int), this.kill_delay));
                 lst.Add(new CPluginVariable("Tickets per Player", typeof(int), this.TicketsPerPlayer));
                 lst.Add(new CPluginVariable("Infractions Before Kick", typeof(int), this.infractionsBeforeKick));
@@ -682,7 +701,15 @@ namespace PRoConEvents
         public override void OnLevelLoaded(String mapFileName, String Gamemode, int roundsPlayed, int roundsTotal)
         {
             this.currentWeapon = this.nextWeapon;
-            String newServerName = "24/7 VoteWeapon - This Round: " + this.currentWeapon.description;
+            string newServerName = "";
+            if(this.serverNameTemplate.Contains("%W%"))
+            {
+                newServerName = this.serverNameTemplate.Replace("%W%", this.currentWeapon.description);
+            }
+            else
+            {
+                newServerName = this.serverNameTemplate;
+            }
             
             this.ExecuteCommand("procon.protected.send", "vars.serverName", newServerName);
             ConsoleWrite("Server Name set to: '" + newServerName + "'");
