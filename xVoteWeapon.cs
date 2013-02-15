@@ -111,6 +111,7 @@ namespace PRoConEvents
             tempWeapons.Add(new Weapon("M417 Sniper Rifle", "M417", "M417", "SniperRifle"));
             tempWeapons.Add(new Weapon("M1014 Semi-automatic Shotgun", "M1014", "M1014", "Shotgun"));
             tempWeapons.Add(new Weapon("M16A4 Assault Rifle", "M16A4", "M16A4", "AssaultRifle"));
+            tempWeapons.Add(new Weapon("M16A3 Assault Rifle", "M16A3", "M16A4", "AssaultRifle"));
             tempWeapons.Add(new Weapon("WWII M1911 .45 Pistol", "M1911", "M1911", "Handgun"));
             tempWeapons.Add(new Weapon("M240B Machine Gun", "M240B", "M240", "LMG"));
             tempWeapons.Add(new Weapon("M249 SAW", "M249", "M249", "LMG"));
@@ -482,8 +483,9 @@ namespace PRoConEvents
             return @"
             <h1>xVoteWeapon</h1>
             <p>
-                !WARNING! this plugin automates ProconRulz, ProconRulz must be running for this plugin to operate. If you are currently using ProconRulz with any custom rules they will be erased when this plugin is enabled.
-                This plugin allows for the 'VoteWeapon' gametype to be played.
+                !WARNING! this plugin automates ProconRulz, ProconRulz must be running for this plugin to operate.          <br/>
+                If you are currently using ProconRulz with any custom rules they will be erased when this plugin is enabled.          <br/>
+                This plugin allows for the 'VoteWeapon' gametype to be played.          <br/>
             </p>
             <h2>Description</h2>
             <h3>Main</h3>
@@ -499,19 +501,19 @@ namespace PRoConEvents
             </p>
             <h3>Suggestions</h3>
             <p>
-                * Use a low ticket count to let everyone have a chance at getting their favorite weapons played. Rounds are to be quick and dirty.<br>
+                * Use a low ticket count to let everyone have a chance at getting their favorite weapons played. Rounds are to be quick and dirty.          <br/>
             </p>
             <h2>Settings</h2>
             <p>
-                * 'Delay Before Kill' - The amount of time(ms) after an infraction is committed that the player is slain. This gives them time to read the yell banner. Default is 2000ms.
-                * 'Infractions Before Kick' - The number of infractions at which the player is kicked from the server. Default is 3.
-                * 'Infractions Before TBan' - The number of infractions at which the player is Temp Banned from the server for 2 Hours. Default is 4.
-                * 'Protect 'reserved slots' players from Kick or Kill' - Whether 'reserved slot' players will be protected from infraction punishment. Default is No.
-                * 'Server Name Template' - This variable is a template for the server name. Add %W% in the server name where you want the weapon description to be.
+                * 'Delay Before Kill' - The amount of time(ms) after an infraction is committed that the player is slain. This gives them time to read the yell banner. Default is 2000ms.          <br/>
+                * 'Infractions Before Kick' - The number of infractions at which the player is kicked from the server. Default is 3.          <br/>
+                * 'Infractions Before TBan' - The number of infractions at which the player is Temp Banned from the server for 2 Hours. Default is 4.          <br/>
+                * 'Protect 'reserved slots' players from Kick or Kill' - Whether 'reserved slot' players will be protected from infraction punishment. Default is No.          <br/>
+                * 'Server Name Template' - This variable is a template for the server name. Add %W% in the server name where you want the weapon description to be.          <br/>
             </p>
             <h2>Future Settings</h2>
             <p>
-                * 'Disallowed Weapons' - List of Weapons that will show up as 'Disallowed Weapon' or 'Invalid Weapon Code' and cannot be used as a vote.
+                * 'Disallowed Weapons' - List of Weapons that will show up as 'Disallowed Weapon' or 'Invalid Weapon Code' and cannot be used as a vote.          <br/>
             </p>
             <h2>Current In-Game player Commands</h2>
             <p>
@@ -528,7 +530,7 @@ namespace PRoConEvents
             </p>
             <h2>Future In-Game admin Commands</h2>
             <p>
-                * 'runnextround' : 		Just like skipweapon for players, but when run by an in-game admin requires no votes.
+                * 'runnextround' : 		Just like skipweapon for players, but when run by an in-game admin requires no votes.          <br/>
             </p>
             <h2>Weapon Codes</h2>
             <p>" + this.getWeaponHTML() + @"</p>
@@ -800,6 +802,3 @@ namespace PRoConEvents
 
     } // end xVoteWeapon
 } // end namespace PRoConEvents
-
-
-
