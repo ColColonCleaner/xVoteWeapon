@@ -42,7 +42,7 @@ namespace PRoConEvents
         */
         private bool fIsEnabled;
         private int fDebugLevel;
-        private String pluginVersion = "1.1";
+        private String pluginVersion = "1.2";
         //the list of available weapons
         private List<Weapon> weaponList;
         //the dictionary of available weapons (quick access by string key)
@@ -111,7 +111,7 @@ namespace PRoConEvents
             tempWeapons.Add(new Weapon("M417 Sniper Rifle", "M417", "M417", "SniperRifle"));
             tempWeapons.Add(new Weapon("M1014 Semi-automatic Shotgun", "M1014", "M1014", "Shotgun"));
             tempWeapons.Add(new Weapon("M16A4 Assault Rifle", "M16A4", "M16A4", "AssaultRifle"));
-            tempWeapons.Add(new Weapon("M16A3 Assault Rifle", "M16A3", "M16A4", "AssaultRifle"));
+            tempWeapons.Add(new Weapon("M16A3 Assault Rifle", "M16A3", "M16A3", "AssaultRifle"));
             tempWeapons.Add(new Weapon("WWII M1911 .45 Pistol", "M1911", "M1911", "Handgun"));
             tempWeapons.Add(new Weapon("M240B Machine Gun", "M240B", "M240", "LMG"));
             tempWeapons.Add(new Weapon("M249 SAW", "M249", "M249", "LMG"));
@@ -585,6 +585,13 @@ namespace PRoConEvents
                         Added a warning for players if the plugin is restarted during a match, since the weapon is randomized on restart.          <br/>
                     <b>Still to fix:</b>          <br/>
                         Nothing, dev done unless other enhancements wanted.
+                <h4>1.2 (11-FEB-2013)</h4>
+	                <b>Weapon Codes:</b>          <br/>
+                        Added m16a3        <br/>
+                    <b>Bug Fixes and Enhancements:</b>          <br/>
+                        fixed crossbow.          <br/>
+                    <b>Still to fix:</b>          <br/>
+                        Nothing, dev done unless other enhancements wanted.
             </blockquote>
             ";
         }
@@ -802,3 +809,6 @@ namespace PRoConEvents
 
     } // end xVoteWeapon
 } // end namespace PRoConEvents
+
+
+
