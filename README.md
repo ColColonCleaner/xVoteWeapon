@@ -1,10 +1,22 @@
 <h1>xVoteWeapon</h1>
-<p>!!!WARNING!!! This plugin automates ProconRulz, if you are currently using ProconRulz with any custom settings they will be erased when this plugin is enabled. This plugin allows for the "VoteWeapon" gametype to be played.</p>
+<p>
+This is an orphaned plugin, I am no longer supporting it, feel free to make updates to it yourself though. This plugin 
+allows for the "VoteWeapon" gametype to be played. !!!WARNING!!! This plugin automates ProconRulz, if you are currently 
+using ProconRulz with any custom rule settings they will be erased when this plugin is enabled, save them before using.
+</p>
 
 <h2>Descripton</h2>
 
-<p>Everyone playing on the server can vote which weapon is allowed for use. Only one weapon type (+ knife) is allowed each round, the weapon vote from the previous match decides it. Players who break the rules are killed, then kicked, then temp banned. If a Melee weapon e.g. repair tool is chosen, the knife may not be used. If nobody votes during a match, the weapon for the next match is chosen randomly from the list below.</p>
-<p>If a player has not unlocked the current set weapon they must use the knife, no exceptions. Players must not use underslung weapons. Thanks to DICE the auto-admin thinks they don't exist, they will get the players killed. No cheating you rascally admins, even protected players will be slain by this plugin when infractions are caught.</p>
+<p>
+Everyone playing on the server can vote which weapon is allowed for use. Only one weapon type (+ knife) is allowed 
+each round, the weapon vote from the previous match decides it. Players who break the rules are killed, then kicked, 
+then temp banned. If a Melee weapon e.g. repair tool is chosen, the knife may not be used. If nobody votes during a 
+match, the weapon for the next match is chosen randomly from the list below.
+</p>
+<p>
+If a player has not unlocked the current set weapon they must use the knife, no exceptions. Players must not use 
+underslung weapons. Thanks to DICE the auto-admin thinks they don't exist, they will get the players killed. No 
+cheating you rascally admins, even protected players will be slain by this plugin when infractions are caught.</p>
 
 <h2>Suggestions</h2>
 <p>Use a low ticket count to let everyone have a change at getting their favorite weapons played. Rounds are to be quick and dirty.</p>
