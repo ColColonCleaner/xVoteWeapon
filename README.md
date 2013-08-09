@@ -1,5 +1,5 @@
 <h1>xVoteWeapon</h1>
-<p>!!!WARNING!!! This plugin automates ProconRulz, if you are currently useing ProconRulz with any custom settings they will be erased when this plugin is enabled. This plugin allows for the "VoteWeapon" gametype to be played.</p>
+<p>!!!WARNING!!! This plugin automates ProconRulz, if you are currently using ProconRulz with any custom settings they will be erased when this plugin is enabled. This plugin allows for the "VoteWeapon" gametype to be played.</p>
 
 <h2>Descripton</h2>
 
